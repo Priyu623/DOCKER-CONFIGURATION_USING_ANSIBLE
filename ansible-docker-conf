@@ -1,0 +1,61 @@
+- hosts: all
+  tasks:
+  - file:
+  	state: directory
+  	path: "/dvd1"
+
+  - mount:
+  	src: "/dev/cdrom"
+  	path: "/dvd1"
+  	state: mounted
+  	fstype: "iso9660"
+
+  - name: SETTING UP DOCKER REPOSITORY
+	yum_repository:
+        	name: "docker_name"
+        	baseurl: "https://download.docker.com/linux/centos/7/x86_64/stable/"
+        	description: "description for dockers"
+        	gpgcheck: no
+
+  - command: "yum install docker-ce --nobest"
+ 
+  - package:
+      	name: "docker-ce-18.06.3.ce-3.el7.x86_64"
+      	state: present
+
+  - name: START DOCKER SERVICES
+	service:
+        	name: "docker"
+        	state: started
+        	enabled: yes
+ 
+
+  - name: PULL IMAGE HTTPD   
+	docker_image:
+     	name: httpd
+     	source: pull
+
+  - name: COPY TASK10.HTML INTO DIRECTORY
+	copy:
+    	dest: "/root/TASK10/TASK10.html"
+    	src: "/TASK10.html"
+
+  - name: CONTAINER CREATION AND EXPOSING
+	docker_container:
+        	name: APACHE_SERVER
+        	image: httpd
+        	state: started
+        	exposed_ports:
+        	- 80
+        	ports:
+        	- 8080:80
+        	volumes:
+        	- /root/:/usr/local/apache2/htdocs
+
+  - firewalld:
+       	port: "8080/tcp"
+       	state: enabled
+       	permanent: yes
+       	immediate: yes
+
+
