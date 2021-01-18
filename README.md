@@ -6,6 +6,7 @@ To configure docker using ansible-playbook.
 
 🔰Write an Ansible PlayBook that does the following operations in the managed nodes:
  
+
 🔹 Configure Docker 
 
 🔹 Start and enable Docker services
